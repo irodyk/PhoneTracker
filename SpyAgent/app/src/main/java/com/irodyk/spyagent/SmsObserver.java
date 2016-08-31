@@ -14,79 +14,48 @@ import android.util.Log;
  */
 public class SmsObserver extends ContentObserver {
 
-    private Context mContext;
+    private final String TAG = this.getClass().getSimpleName();
 
-    private String contactId = "", contactName = "";
-    private String smsBodyStr = "", phoneNoStr = "";
-    private long smsDatTime = System.currentTimeMillis();
-    static final Uri SMS_STATUS_URI = Uri.parse("content://sms");
+    private Context mContext;
+    static final Uri SMS_URI = Uri.parse("content://sms");
 
     public SmsObserver(Handler handler, Context ctx) {
         super(handler);
         mContext = ctx;
     }
 
-    public boolean deliverSelfNotifications() {
+    @Override
+    public boolean deliverSelfNotifications() { //onChange() is called twice if return false
         return true;
     }
 
-    public void onChange(boolean selfChange) {
-        try{
-            Log.e("Info","Notification on SMS observer");
-            Cursor sms_sent_cursor = mContext.getContentResolver().query(SMS_STATUS_URI, null, null, null, null);
-            if (sms_sent_cursor != null) {
-                if (sms_sent_cursor.moveToFirst()) {
-                    String protocol = sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("protocol"));
-                    Log.e("Info","protocol : " + protocol);
-                    //for send  protocol is null
-                    if(protocol == null){
-                        /*
-                        String[] colNames = sms_sent_cursor.getColumnNames();
-                        if(colNames != null){
-                            for(int k=0; k<colNames.length; k++){
-                                Log.e("Info","colNames["+k+"] : " + colNames[k]);
-                            }
-                        }
-                        */
-                        int type = sms_sent_cursor.getInt(sms_sent_cursor.getColumnIndex("type"));
-                        Log.e("Info","SMS Type : " + type);
-                        // for actual state type=2
-                        if(type == 2){
-                            Log.e("Info","Id : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("_id")));
-                            Log.e("Info","Thread Id : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("thread_id")));
-                            Log.e("Info","Address : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("address")));
-                            Log.e("Info","Person : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("person")));
-                            Log.e("Info","Date : " + sms_sent_cursor.getLong(sms_sent_cursor.getColumnIndex("date")));
-                            Log.e("Info","Read : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("read")));
-                            Log.e("Info","Status : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("status")));
-                            Log.e("Info","Type : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("type")));
-                            Log.e("Info","Rep Path Present : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("reply_path_present")));
-                            Log.e("Info","Subject : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("subject")));
-                            Log.e("Info","Body : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("body")));
-                            Log.e("Info","Err Code : " + sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("error_code")));
+    @Override
+    public void onChange(boolean bSelfChange){
+        super.onChange(bSelfChange);
+        Log.e(TAG, "Sms database has changed");
 
-                            smsBodyStr = sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("body")).trim();
-                            phoneNoStr = sms_sent_cursor.getString(sms_sent_cursor.getColumnIndex("address")).trim();
-                            smsDatTime = sms_sent_cursor.getLong(sms_sent_cursor.getColumnIndex("date"));
+        Cursor c = mContext.getContentResolver().query(SMS_URI, null, null, null, null);
 
-                            Log.e("Info","SMS Content : "+smsBodyStr);
-                            Log.e("Info","SMS Phone No : "+phoneNoStr);
-                            Log.e("Info","SMS Time : "+smsDatTime);
-                        }
-                    }
-                }
-            }
-            else
-                Log.e("Info","Send Cursor is Empty");
+        if(c == null) return;
+        c.moveToNext(); //point to the latest message!
+
+        int smsType = Integer.valueOf(c.getString(c.getColumnIndex("type")));
+        if (smsType == 1 || smsType == 2){ //inbox and sent
+            String type = (smsType == 1) ? "Inbox" : "Sent";
+            String smsTime = c.getString(c.getColumnIndex("date"));
+            String smsBody = c.getString(c.getColumnIndex("body"));
+            String smsAddress = c.getString(c.getColumnIndex("address"));
+            String personName = getContactName(smsAddress);
+
+            Log.d(TAG, "type: " + type + "\nsmsTime: " + smsTime + "\nsmsBody: " +smsBody + "\nnumber: " + smsAddress+"\nPerson: " + personName);
+        }else{
+            //DO NOTHING
         }
-        catch(Exception sggh){
-            Log.e("Error", "Error on onChange : "+sggh.toString());
-        }
-        super.onChange(selfChange);
+        c.close();
     }
 
-    public static String getContactName(Context context, String phoneNumber) {
-        ContentResolver cr = context.getContentResolver();
+    private String getContactName(String phoneNumber) {
+        ContentResolver cr = mContext.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
         Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
         if (cursor == null) {
@@ -97,7 +66,7 @@ public class SmsObserver extends ContentObserver {
             contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
         }
 
-        if(cursor != null && !cursor.isClosed()) {
+        if(!cursor.isClosed()) {
             cursor.close();
         }
 
