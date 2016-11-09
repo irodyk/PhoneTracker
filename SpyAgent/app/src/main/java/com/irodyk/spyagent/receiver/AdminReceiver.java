@@ -1,4 +1,4 @@
-package com.irodyk.spyagent.observer.receiver;
+package com.irodyk.spyagent.receiver;
 
 import android.app.admin.DeviceAdminReceiver;
 import android.content.Context;
