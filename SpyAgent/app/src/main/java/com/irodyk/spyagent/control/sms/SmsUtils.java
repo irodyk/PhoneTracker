@@ -7,10 +7,13 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 class SmsUtils {
+
+    private static final int MILLIS_TIME_LENGTH = 14;
 
     @Nullable
     static String getContactName(Context context, String phoneNumber) {
@@ -38,19 +41,16 @@ class SmsUtils {
     }
 
     @Nullable
-    static String convertTime(long millis){
+    static String convertTime(String millis){
+        if (millis == null || !millis.matches("[0-9]+") || millis.length() != MILLIS_TIME_LENGTH)
+            return null;
 
-        String date = "";
-        String time = "";
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.getDefault());
 
-        String.format(Locale.getDefault(), "%d:%d:%d",
-                TimeUnit.MILLISECONDS.toHours(millis),
-                TimeUnit.MILLISECONDS.toMinutes(millis),
-                TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
-        );
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.parseLong(millis));
 
-
-
-        return null;
+        return formatter.format(calendar.getTime());
     }
 }
